@@ -20,104 +20,152 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-from atexit import register
-from operator import mod
-from model import cmpMoviesByReleaseYear
-from DISClib.Algorithms.Sorting import insertionsort as ins
-from DISClib.Algorithms.Sorting import mergesort as mer
-from DISClib.Algorithms.Sorting import quicksort as qs
 import config as cf
 import model
 import csv
-import pandas as pd
-#import tabulate
+import time
+import tracemalloc
+from DISClib.ADT import list as lt
+from DISClib.ADT import map as mp
+csv.field_size_limit(2147483647)
+
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
+tam = "large"
 
 # Inicialización del Catálogo de libros
-def newController(structure):
-    control = {'model': None}
-    control["model"] = model.newCatalog(structure)
+def newController():
+    """
+    Crea una instancia del modelo
+    """
+    control = {
+        'model': None
+    }
+    control['model'] = model.newCatalog()
     return control
- 
-
-
 
 # Funciones para la carga de datos
 
-def loadTitles(catalog, sampleSize):
-    sample = str(sampleSize) + "pct"
-    if sampleSize == 100:
-        sample = "large"
-    register = 0
-    all_registers={}
-    uuid= 0
-    count = 0
-    for service in catalog: #service toma el valor de amazon, hulu, etc
-        
-        if service != "general":
-            individual_register = 0    
-            platform = catalog[service]
-            file = cf.data_dir + "Streaming/" + service + "_titles-utf8-" + sample + ".csv"
-            input_file = csv.DictReader(open(file, encoding='utf-8'))
-            for content in input_file: #content toma el valor de cada diccionario "cada línea del archivo"
-                model.addContent(platform, content, service, uuid)
-                model.addContent(catalog["general"], content, service, uuid)
-                uuid += 1
-                count += 1
-                if count % 50 == 0:
-                    ins.sort(platform, cmpMoviesByReleaseYear)
-                    ins.sort(catalog["general"], cmpMoviesByReleaseYear)
-            register += model.platformSize(platform)
-            individual_register += model.platformSize(platform)
-            all_registers[service] = individual_register
+def loadData(control, memflag=True):
+    """
+    Carga los datos de los archivos y cargar los datos en la
+    estructura de datos
+    """
+    catalog = control['model']
     
-    return register, all_registers
+    #tracemalloc.start()
 
-control = newController("ARRAY_LIST")
+    start_time = getTime()
+    #start_memory = getMemory()
 
-def loadData(control, sampleSize):
-    catalog = control["model"]
-    register, all_registers = loadTitles(catalog, sampleSize)
-    
-    return register, all_registers
+    Amazon = loadAmazon(catalog)
+    Hulu = loadHulu(catalog)
+    Netflix = loadNetflix(catalog)
+    Disney = loadDisney(catalog)
 
+
+    #stop_memory = getMemory()
+    stop_time = getTime()
+  
+    #tracemalloc.stop()
+
+    time = deltaTime(stop_time, start_time)
+    #memory = deltaMemory(stop_memory, start_memory)
+    return Amazon, Hulu, Netflix, Disney, time
+
+def loadAmazon(catalog):
+    """
+    Carga todas las canciones del archivo y las agrega a la lista de tracks. 
+    """
+    amazonfile = cf.data_dir + 'Streaming/amazon_prime_titles-utf8-{0}.csv'.format(tam)
+    input_file = csv.DictReader(open(amazonfile, encoding='utf-8'))
+    for movie in input_file:
+        model.addAmazon(catalog, movie)
+    return lt.size(catalog["amazon_prime"])
+
+def loadNetflix(catalog):
+    """
+    Carga todos los albums del archivo y los agrega a la lista de albums.
+    """
+    netflixfile = cf.data_dir + 'Streaming/netflix_titles-utf8-{0}.csv'.format(tam)
+    input_file = csv.DictReader(open(netflixfile, encoding='utf-8'))
+    for movie in input_file:
+        model.addNetflix(catalog, movie)
+    return lt.size(catalog["netflix"])
+
+def loadHulu(catalog):
+    """
+    Carga todas los artistas del archivo y las agrega a la lista de artists.
+    """
+    hulufile = cf.data_dir + 'Streaming/hulu_titles-utf8-{0}.csv'.format(tam)
+    input_file = csv.DictReader(open(hulufile, encoding='utf-8'))
+    for movie in input_file:
+        model.addHulu(catalog, movie)
+    return lt.size(catalog["hulu"])
+
+def loadDisney(catalog):
+    """
+    Carga todas los artistas del archivo y las agrega a la lista de artists.
+    """
+    disneyfile = cf.data_dir + 'Streaming/disney_plus_titles-utf8-{0}.csv'.format(tam)
+    input_file = csv.DictReader(open(disneyfile, encoding='utf-8'))
+    for movie in input_file:
+        model.addDisney(catalog, movie)
+    return lt.size(catalog["disney_plus"])
 
 # Funciones de ordenamiento
-def choosingSorts(control, orderType):
-    return model.choosingSorts(control["model"], orderType)
 
-
-
-
-def sortCatalog(control, order):
-    catalog = control["model"]
-    return model.sortCatalog(catalog, order)
 # Funciones de consulta sobre el catálogo
-def firstAndLast(catalog):
-    return model.firstAndLast(catalog)
-
-def findContentByGenre(control, genre):
-    return model.findContentByGenre(control["model"], genre)
 
 
-def findContentByCountry(control, country):
-    return model.findContentByCountry(control["model"], country)
 
 
-def findContentByActor(control, nameAutor):
-    return model.findContentByActor(control["model"], nameAutor)
 
-def moviesInYears(control, initial_year, final_year):
-    return model.moviesInYears(control["model"], initial_year, final_year)
 
-def TvShowsInPeriod(control, initialDate, finalDate):
-    return model.TvShowsInPeriod(control["model"], initialDate, finalDate)
 
-def directorInvolved(control, director):
-    return model.directorInvolved(control["model"], director)
 
-def topGenders(control, top):
-    return model.topGenders(control["model"], top)
+
+
+
+
+def getTime():
+    """
+    devuelve el instante tiempo de procesamiento en milisegundos
+    """
+    return float(time.perf_counter()*1000)
+
+
+def deltaTime(end, start):
+    """
+    devuelve la diferencia entre tiempos de procesamiento muestreados
+    """
+    elapsed = float(end - start)
+    return elapsed
+
+
+# Funciones para medir la memoria utilizada
+
+
+def getMemory():
+    """
+    toma una muestra de la memoria alocada en instante de tiempo
+    """
+    return tracemalloc.take_snapshot()
+
+
+def deltaMemory(stop_memory, start_memory):
+    """
+    calcula la diferencia en memoria alocada del programa entre dos
+    instantes de tiempo y devuelve el resultado en bytes (ej.: 2100.0 B)
+    """
+    memory_diff = stop_memory.compare_to(start_memory, "filename")
+    delta_memory = 0.0
+
+    # suma de las diferencias en uso de memoria
+    for stat in memory_diff:
+        delta_memory = delta_memory + stat.size_diff
+    # de Byte -> kByte
+    delta_memory = delta_memory/1024.0
+    return delta_memory

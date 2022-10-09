@@ -20,21 +20,14 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-from atexit import register
-from pyexpat import model
-#from turtle import pd
-from wsgiref import headers
 import config as cf
 import sys
-import controller as controller
+import controller
 from DISClib.ADT import list as lt
 assert cf
-from tabulate import tabulate
-import pandas as pd
 default_limit = 1000
-sys.setrecursionlimit(default_limit*100)
+sys.setrecursionlimit(default_limit*10)
 
-# revisar cambios hechos del 8 al 11 de septiembre, hemos hecho más commits después de esa fecha gracias :)
 
 """
 La vista se encarga de la interacción con el usuario
@@ -43,160 +36,131 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 
+def printTiempo_Memoria(tiempo): 
+    mensaje = "****  Tiempo [ms]: {0} ****".format(round(tiempo,2))
+    print(mensaje)
 
-def newController(structure):
-    control = controller.newController(structure)
-    return control
+def printAmazon(catalog):
+    size_plataforma = lt.size(catalog["model"]["amazon_prime"]) 
+    movie = "" 
+    pos = [0, 1, 2, size_plataforma-3, size_plataforma-2, size_plataforma-1]
 
-def chooseStructure():
-    structure = int(input("Seleccione una estructura para organizar los datos (0 para SINGLE_LINKED o 1 para ARRAY_LIST): "))
-    if structure == 0:
-        return "SINGLE_LINKED"
-    elif structure == 1:
-        return "ARRAY_LIST"
+    for i in range(6):
+        movie = lt.getElement(catalog["model"]["amazon_prime"], pos[i])
+        if   i == 0:
+            print('>>>   Primeras 3 peliculas cargadas de amazon son...   >>>')
+        elif i == 3:
+            print('>>>   Últimas 3 peliculas cargadas de amazon son...    >>>')
+        print(
+            "      Nombre: " + 
+            movie["title"] + 
+            " , Tipo: " + 
+            str(movie["type"] ) + 
+            " , Año lanzamiento: " + 
+            str(int(movie["release_year"])))
+
+def printHulu(catalog):
+    size_plataforma = lt.size(catalog["model"]["hulu"]) 
+    movie = "" 
+    pos = [0, 1, 2, size_plataforma-3, size_plataforma-2, size_plataforma-1]
+
+    for i in range(6):
+        movie = lt.getElement(catalog["model"]["hulu"], pos[i])
+        if   i == 0:
+            print('>>>   Primeras 3 peliculas cargadas de hulu son...   >>>')
+        elif i == 3:
+            print('>>>   Últimas 3 peliculas cargadas de hulu son...    >>>')
+        print(
+            "      Nombre: " + 
+            movie["title"] + 
+            " , Tipo: " + 
+            str(movie["type"] ) + 
+            " , Año lanzamiento: " + 
+            str(int(movie["release_year"])))
+
+def printNetflix(catalog):
+    size_plataforma = lt.size(catalog["model"]["netflix"]) 
+    movie = "" 
+    pos = [0, 1, 2, size_plataforma-3, size_plataforma-2, size_plataforma-1]
+
+    for i in range(6):
+        movie = lt.getElement(catalog["model"]["netflix"], pos[i])
+        if   i == 0:
+            print('>>>   Primeras 3 peliculas cargadas de netflix son...   >>>')
+        elif i == 3:
+            print('>>>   Últimas 3 peliculas cargadas de netflix son...    >>>')
+        print(
+            "      Nombre: " + 
+            movie["title"] + 
+            " , Tipo: " + 
+            str(movie["type"] ) + 
+            " , Año lanzamiento: " + 
+            str(int(movie["release_year"])))
+
+def printDisney(catalog):
+    size_plataforma = lt.size(catalog["model"]["disney_plus"]) 
+    movie = "" 
+    pos = [0, 1, 2, size_plataforma-3, size_plataforma-2, size_plataforma-1]
+
+    for i in range(6):
+        movie = lt.getElement(catalog["model"]["disney_plus"], pos[i])
+        if   i == 0:
+            print('>>>   Primeras 3 peliculas cargadas de disney_plus son...   >>>')
+        elif i == 3:
+            print('>>>   Últimas 3 peliculas cargadas de disney_plus son...    >>>')
+        print(
+            "      Nombre: " + 
+            movie["title"] + 
+            " , Tipo: " + 
+            str(movie["type"] ) + 
+            " , Año lanzamiento: " + 
+            str(int(movie["release_year"])))
+
 
 def printMenu():
-    print("Bienvenido")
-    print("1- Cargar información en el catálogo")
-    print("2- Listar películas estrenadas en un periodo de tiempo")
-    print("3- Listar programas de televisión agregados en un periodo de tiempo")
-    print("4- Consultar contenido donde participa un actor")
-    print("5- Consultar contenido por un género específico")
-    print("6- Consultar contenido producido en un país")
-    print("7- Consultar1 contenido con un director involucrado")
-    print("8- Listar el TOP x de los géneros con más contenido")
-    print("9- Seleccionar tipo de lista, ordenamiento y muestra")
-    print("0- Salir")
-
-
-def countPlatformTable(ar):
-    values = list(ar.values())
-    keys = list(ar.keys())
-    platforms = [[keys[0],str(values[0])],[keys[1],str(values[1])],[keys[2],str(values[2])],[keys[3],str(values[3])]]
-    print(tabulate((platforms), headers= ["Service Name", "count"], tablefmt = "fancy_grid"))
-    print("\n")
-
-#def firstAndLastTable():
     
-#catalog = None
+    print("====="*15)
+    print("          >>               Bienvenido                    <<     ")
+    print("  [R0]   q- Cargar información en el catálogo.")
+    print("  [R1]   1- Examinar los álbumes en un año de interés.")
+    print("  [R2]   2- Encontrar los artistas por popularidad.")
+    print("  [R3]   3- Encontrar las canciones por popularidad.")
+    print("  [R4]   4- Encontrar la canción más popular de un artista.")
+    print("  [R5]   5- Encontrar la discografía de un artista.")
+    print("  [R6]   6- Clasificar las canciones de artistas con mayor distribución.")
+    print("         0- Salir")
+    print("====="*15)
 
-def loadData(control, sampleSize):
-    register = controller.loadData(control, sampleSize)
-    return register
-
-def loadDataDefault(control):
-    register = controller.loadDataDefault(control)
-    return register
-
-
-
+catalog = controller.newController()
 """
 Menu principal
 """
 while True:
     printMenu()
-    inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
-        structure = input("Selecciones una estructura de datos ('ARRAY_LIST', 'SINGLE_LINKED', 'CHAINING' o 'PROBING'): ").upper()
-        if structure != "ARRAY_LIST" and structure != "SINGLE_LINKED" and structure != "CHAINING"and structure != "PROBING":
-            structure = input("Por favor, elija una opcion válida: ")
-        
-        control = newController(structure)
-        sampleSize = int(input("Ingrese el porcentaje de la muestra ('5', '10', '20', '30', '50', '80', '100'): "))
+    inputs = input('>> Seleccione una opción para continuar: ')
+    if inputs == "q":
         print("Cargando información de los archivos ....")
-        register, ar = loadData(control, sampleSize)
-        print(register)
-        print('Títulos cargados: ' + str(register))
-        print("-"*100)
-
-        print(countPlatformTable(ar))
-
-        
-        firstAndLast = controller.firstAndLast(control["model"])
-        consulta = (list(firstAndLast.values())[0])
-        lista=[]
-        for pelicula in consulta:
-            elemento= list(pelicula.values())
-            lista.append(elemento)
-        #print(tabulate((lista), headers= ['show_id', 'streaming_service', 'type', 'release_year', 
-        #    'title', 'director', 'cast', 'country', 'date_adeed', 'rating', 'duration', 'listed_in', 'description'], tablefmt='grid', stralign= 'left'))
-        print(lista)
-    elif int(inputs[0]) == 2:
-        initial_year = int(input("Ingrese el año inicial del periodo: "))
-        final_year = int(input("Ingrese el año final del periodo: "))
-        sub, ar , delt= controller.moviesInYears(control, initial_year, final_year)
-        delta_time = delt
-        print("Hay " + str(ar) +" películas estrenadas entre " + str(initial_year) + " y " + str(final_year))
-        print("Los tres primeros, tres ultimos encontrados de acuerdo a sus parámetros son: ")
-        print(sub)
-        print("\nPara este requerimiento, delta tiempo:", str(delta_time))
-    
-    elif int(inputs[0]) == 3:
-        initialDate = input("Ingrese la fecha inicial del periodo: ")
-        finalDate = input("Ingrese la fecha final del periodo: ")
-        sub, ar, delt = controller.TvShowsInPeriod(control, initialDate, finalDate)
-        delta_time = delt
-        print("Hay " + str(ar) +" series estrenadas entre " + str(initialDate) + " y " + str(finalDate))
-        print("Los tres primeros, tres ultimos encontrados de acuerdo a los parámetros son: ")
-        print(sub)
-        print("\n Para este requerimiento, delta tiempo:", str(delta_time))
+        Amazon, Hulu, Netflix, Disney, tiempo = controller.loadData(catalog)
+        TotalPeliculas = int(Amazon) + int(Hulu) + int(Netflix) + int(Disney)
+        print("=="*40)
+        print("      Número de peliculas en amazon: {0}".format(Amazon))
+        print("      Número de peliculas en netflix: {0}".format(Netflix))
+        print("      Número de peliculas en hulu: {0}".format(Hulu))
+        print("      Número de peliculas en diney: {0}".format(Disney))
+        print("      Número de peliculas cargadas: {0}".format(TotalPeliculas))
 
 
-    
-    elif int(inputs[0]) == 4:
-        nameAutor = input("\nIngrese el nombre del actor que desea buscar: ")
-        register, contentByAutor, delt = controller.findContentByActor(control, nameAutor)
-        delta_time = delt
-        df = contentByAutor
-        print(nameAutor.title(), "tiene un total de", register["TV Shows"], "TV Shows y " , register["Movies"], "Movies.")
-        print("Los tres primeros, tres ultimos encontrados y su informacion son: ")
-        print(df)
-        print("\n Para este requerimiento, delta tiempo:", str(delta_time))
+        print("=="*70)
+        printAmazon(catalog)
+        print("=="*70)
+        printNetflix(catalog)
+        print("=="*70)
+        printHulu(catalog)
+        print("=="*70)
+        printDisney(catalog)
 
-    elif int(inputs[0]) == 5:
-        genre = input("Ingrese el nombre del género de pelicula o serie que desea buscar: ")
-        ans, delt = controller.findContentByGenre(control, genre)
-        delta_time = delt
-        print(f"Hay un total de {str(ans[1])} series y {str(ans[2])}  peliculas del género -{genre}-")
-        df = ans[0]
-        print("Los tres primeros, tres ultimos encontrados de acuerdo a sus parámetros son: ")
-        print(df)
-        #print(tabulate(df,headers='keys',tablefmt='fancy_grid'))
-        print("\n Para este requerimiento, delta tiempo:", str(delta_time))
-        
+        printTiempo_Memoria(tiempo)
 
-
-
-    elif int(inputs[0]) == 6:
-        country = input("Ingrese el país que desea buscar: ")
-        register, contentByCountry, delt = controller.findContentByCountry(control, country)
-        delta_time = delt
-        print(country.title(), "tiene un total de", register["TV Shows"], "TV Shows y " , register["Movies"], "Movies.")
-        print("Los tres primeros, tres ultimos encontrados de acuerdo a sus parametros son: ")
-        print(contentByCountry)
-        print("\n Para este requerimiento, delta tiem   po:", str(delta_time))
-    
-    elif int(inputs[0]) == 7:
-        director = input("Ingrese el director que desea buscar: ")
-        tr, sr, gr, sub,delta_time = controller.directorInvolved(control, director)
-        print(tr, sr, gr, sub)
-        print("\n Para este requerimiento, delta tiempo:", str(delta_time))
-
-    elif int(inputs[0]) == 8:
-        top = int(input("Ingrese el TOP N que desea conocer: "))
-        ag = controller.topGenders(control, top)
-        print(ag)
-        
-
-
-    elif int(inputs[0]) == 9:
-        orderType = input("Ingrese el ordenamiento a usar ('shell', 'insertion', 'selection', 'merge', 'quick'): ").lower()
-        sorted_list, delta = controller.choosingSorts(control, orderType)
-        print(delta)
-        print("-"*100)
-        #print(sorted_list)
-        
-        
     else:
         sys.exit(0)
 sys.exit(0)
