@@ -36,8 +36,8 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 
-def printTiempo_Memoria(tiempo): 
-    mensaje = "****  Tiempo [ms]: {0} ****".format(round(tiempo,2))
+def printTiempo_Memoria(tiempo, memoria): 
+    mensaje = "****  Tiempo [ms]: {0} | Memoria [kb]: {1}  ****".format(round(tiempo,2), round(memoria,2))
     print(mensaje)
 
 def printAmazon(catalog):
@@ -48,9 +48,9 @@ def printAmazon(catalog):
     for i in range(6):
         movie = lt.getElement(catalog["model"]["amazon_prime"], pos[i])
         if   i == 0:
-            print('>>>   Primeras 3 peliculas cargadas de amazon son...   >>>')
+            print('>>>   Primeras 3 canciones cargadas son...   >>>')
         elif i == 3:
-            print('>>>   Últimas 3 peliculas cargadas de amazon son...    >>>')
+            print('>>>   Últimas 3 canciones cargadas son...    >>>')
         print(
             "      Nombre: " + 
             movie["title"] + 
@@ -67,9 +67,9 @@ def printHulu(catalog):
     for i in range(6):
         movie = lt.getElement(catalog["model"]["hulu"], pos[i])
         if   i == 0:
-            print('>>>   Primeras 3 peliculas cargadas de hulu son...   >>>')
+            print('>>>   Primeras 3 canciones cargadas son...   >>>')
         elif i == 3:
-            print('>>>   Últimas 3 peliculas cargadas de hulu son...    >>>')
+            print('>>>   Últimas 3 canciones cargadas son...    >>>')
         print(
             "      Nombre: " + 
             movie["title"] + 
@@ -86,9 +86,9 @@ def printNetflix(catalog):
     for i in range(6):
         movie = lt.getElement(catalog["model"]["netflix"], pos[i])
         if   i == 0:
-            print('>>>   Primeras 3 peliculas cargadas de netflix son...   >>>')
+            print('>>>   Primeras 3 canciones cargadas son...   >>>')
         elif i == 3:
-            print('>>>   Últimas 3 peliculas cargadas de netflix son...    >>>')
+            print('>>>   Últimas 3 canciones cargadas son...    >>>')
         print(
             "      Nombre: " + 
             movie["title"] + 
@@ -105,9 +105,9 @@ def printDisney(catalog):
     for i in range(6):
         movie = lt.getElement(catalog["model"]["disney_plus"], pos[i])
         if   i == 0:
-            print('>>>   Primeras 3 peliculas cargadas de disney_plus son...   >>>')
+            print('>>>   Primeras 3 canciones cargadas son...   >>>')
         elif i == 3:
-            print('>>>   Últimas 3 peliculas cargadas de disney_plus son...    >>>')
+            print('>>>   Últimas 3 canciones cargadas son...    >>>')
         print(
             "      Nombre: " + 
             movie["title"] + 
@@ -140,7 +140,7 @@ while True:
     inputs = input('>> Seleccione una opción para continuar: ')
     if inputs == "q":
         print("Cargando información de los archivos ....")
-        Amazon, Hulu, Netflix, Disney, tiempo = controller.loadData(catalog)
+        Amazon, Hulu, Netflix, Disney, tiempo, memoria = controller.loadData(catalog)
         TotalPeliculas = int(Amazon) + int(Hulu) + int(Netflix) + int(Disney)
         print("=="*40)
         print("      Número de peliculas en amazon: {0}".format(Amazon))
@@ -159,7 +159,7 @@ while True:
         print("=="*70)
         printDisney(catalog)
 
-        printTiempo_Memoria(tiempo)
+        printTiempo_Memoria(tiempo, memoria)
 
     else:
         sys.exit(0)

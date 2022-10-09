@@ -33,7 +33,7 @@ csv.field_size_limit(2147483647)
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
-tam = "large"
+tam = "small"
 
 # Inicialización del Catálogo de libros
 def newController():
@@ -48,17 +48,17 @@ def newController():
 
 # Funciones para la carga de datos
 
-def loadData(control, memflag=True):
+def loadData(control):
     """
     Carga los datos de los archivos y cargar los datos en la
     estructura de datos
     """
     catalog = control['model']
     
-    #tracemalloc.start()
+    tracemalloc.start()
 
     start_time = getTime()
-    #start_memory = getMemory()
+    start_memory = getMemory()
 
     Amazon = loadAmazon(catalog)
     Hulu = loadHulu(catalog)
@@ -66,14 +66,14 @@ def loadData(control, memflag=True):
     Disney = loadDisney(catalog)
 
 
-    #stop_memory = getMemory()
+    stop_memory = getMemory()
     stop_time = getTime()
   
-    #tracemalloc.stop()
+    tracemalloc.stop()
 
     time = deltaTime(stop_time, start_time)
-    #memory = deltaMemory(stop_memory, start_memory)
-    return Amazon, Hulu, Netflix, Disney, time
+    memory = deltaMemory(stop_memory, start_memory)
+    return Amazon, Hulu, Netflix, Disney, time, memory
 
 def loadAmazon(catalog):
     """
