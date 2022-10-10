@@ -33,7 +33,7 @@ csv.field_size_limit(2147483647)
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
-tam = "small"
+size = "small"
 
 # Inicialización del Catálogo de libros
 def newController():
