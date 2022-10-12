@@ -126,6 +126,12 @@ def newCatalog():
                         maptype= 'PROBING',
                         loadfactor = 0.4
                         )
+
+    #================[Adicionales]===================
+    catalog["films_per_type"] = mp.newMap(numelements= 250, 
+                        maptype="PROBING",
+                        loadfactor=0.4
+                        )
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -157,57 +163,97 @@ def addDisney(catalog, film):
 def addGeneral(catalog, film):
     
     lt.addLast(catalog["general"], film)
-    #=================[R1]=================
-    anio_film = str(film["release_year"])
-    exists_year = mp.get(catalog["films_per_year"], anio_film)
+    #=================[Id]====================
+    mp.put(catalog['id_films'], film['show_id'], film)
+    actors = film['cast'].split(",")  # Se obtienen los actores
+    for actor in actors:
+        addMapActor(catalog, actor.strip(), film)
+    genres = film['listed_in'].split(",")  # Se obtienen los generos
+    for gen in genres:
+        addMapGenres(catalog, gen.strip(), film)
+    countrys = film['country'].split(",")  # Se obtienen los paises
+    for country in countrys:
+        addMapCountry(catalog, country.strip(), film)
+    addMapYears(catalog, film)
+    addMapDate(catalog, film)
+    #=================[Requerimiento 1]=================
+def addMapYears(catalog, film):
+    if film["type"] == "Movie":
 
-    if exists_year:
-        insertElementHashr1(exists_year["value"], film, lo=1,hi=None)
-
-    else:
-        mp.put(catalog["films_per_year"], anio_film, lt.newList("ARRAY_LIST"))
+        anio_film = str(film["release_year"])
         exists_year = mp.get(catalog["films_per_year"], anio_film)
-        lt.addLast(exists_year["value"], film)
 
-    #==================[R2]===================
-    date_add = str(film["date_added"])
-    exists_date = mp.get(catalog["films_per_date"], date_add)
+        if exists_year:
+            insertElementHashR1(exists_year["value"], film, lo=1,hi=None)
 
-    if exists_date:
-        insertElementHashr2(exists_date["value"], film, lo=1,hi=None)
-
-    else:
-        mp.put(catalog["films_per_date"], date_add, lt.newList("ARRAY_LIST"))
-        exists_date = mp.get(catalog["films_per_date"], date_add)
-        lt.addLast(exists_date["value"], film)
-
-    #=================[R3]=================
-    cast = str(film["cast"])
-    actor_name_key = mp.get(catalog["id_films"], cast)
-            
-    if actor_name_key != None:
-                actor_name_key = actor_name_key["value"]["title"]
-            
-    if actor_name_key == None:
-        pass
-    else:
-        list_actor_films = mp.get(catalog["film_per_actor"], actor_name_key)
-
-        if list_actor_films:
-            insertElementHashr2(list_actor_films["value"],film, lo=1,hi=None)
-                
         else:
+            mp.put(catalog["films_per_year"], anio_film, lt.newList("ARRAY_LIST"))
+            exists_year = mp.get(catalog["films_per_year"], anio_film)
+            lt.addLast(exists_year["value"], film)
+    
+    #==================[Requerimiento 2]===================
+def addMapDate(catalog, film):
+    if film["type"] == "TV Show":
+        date_add = str(film["date_added"])
+        exists_date = mp.get(catalog["films_per_date"], date_add)
 
-            mp.put(catalog["film_per_actor"], actor_name_key, lt.newList("ARRAY_LIST"))
-            list_artist_albums = mp.get(catalog["film_per_actor"], actor_name_key)
-            lt.addLast(list_actor_films["value"], film)
+        if exists_date:
+            insertElementHashR2(exists_date["value"], film, lo=1,hi=None)
+
+        else:
+            mp.put(catalog["films_per_date"], date_add, lt.newList("ARRAY_LIST"))
+            exists_date = mp.get(catalog["films_per_date"], date_add)
+            lt.addLast(exists_date["value"], film)
+
+    #=================[Requerimiento 3]=================
+def addMapActor(catalog, actor_name, film):
+    actors = catalog['film_per_actor']
+    existactor = mp.contains(actors, actor_name)
+    if existactor:
+        entry = mp.get(actors, actor_name)
+        actor = me.getValue(entry)
+    else:
+        lista = lt.newList()
+        mp.put(actors,actor_name,lista)
+        entry = mp.get(actors, actor_name)
+        actor = me.getValue(entry)
+    lt.addLast(actor, film)
+
+    #=================[Requerimiento 4]=================
+def addMapGenres(catalog, genre, film):
+    genres = catalog['film_per_genres']
+    existgenre = mp.contains(genres, genre)
+    if existgenre:
+        entry = mp.get(genres, genre)
+        gen = me.getValue(entry)
+        lt.addLast(gen, film)
+    else:
+        lista = lt.newList()
+        mp.put(genres,genre,lista)
+        entry = mp.get(genres, genre)
+        gen = me.getValue(entry)
+    lt.addLast(gen, film)
+
+    #=================[Requerimiento 5]=================
+def addMapCountry(catalog, country, film):
+    countrys = catalog['film_per_country']
+    existcountry = mp.contains(countrys, country)
+    if existcountry:
+        entry = mp.get(countrys, country)
+        nation = me.getValue(entry)
+    else:
+        lista = lt.newList()
+        mp.put(countrys,country,lista)
+        entry = mp.get(countrys, country)
+        nation = me.getValue(entry)
+    lt.addLast(nation, film)
 
 
-#=^..^=   =^..^=   =^..^=   [Funciones por requerimiento]  =^..^=    =^..^=    =^..^=    =^..^=
+#=^..^= [Funciones por requerimiento]  =^..^=    =^..^=    =^..^=    =^..^=
 
-#=================[R1]=================
+#=================[Requerimiento 1]=================
 
-def insertElementHashr1(lista, film, lo=1, hi=None):
+def insertElementHashR1(lista, film, lo=1, hi=None):
     if hi is None:
         hi = lt.size(lista) + 1
     while lo < hi:
@@ -219,26 +265,27 @@ def insertElementHashr1(lista, film, lo=1, hi=None):
              lo = mid+1
     lt.insertElement(lista, film, lo)
 
-def filmsbyYear(catalog, estrenos_anio):
+def FilmsByYear(catalog, estrenos_anio):
     """
     Función principal del requerimiento 1
     """
-    list_year = mp.get(catalog["model"]["films_per_year"], estrenos_anio)
+    lista_anio = mp.get(catalog["model"]["films_per_year"], estrenos_anio)
 
     
-    if list_year == None:
+    if lista_anio == None:
         return None, None
 
-    list_year = mp.get(catalog["model"]["films_per_year"], estrenos_anio)["value"]
-    num_films = mp.size(list_year)
-    list_year_ord = mgs.sort(list_year, cmpReq1)
-    films = FirstAndLast(list_year_ord)
+    lista_anio = mp.get(catalog["model"]["films_per_year"], estrenos_anio)["value"]
+    num_films = mp.size(lista_anio)
+    lista_anio_ord = mgs.sort(lista_anio, cmpRequerimiento1)
+    films = FirstAndLast(lista_anio_ord)
 
 
     return films, num_films
 
-#=====================[R2]================================
-def insertElementHashr2(lista, film, lo=1, hi=None):
+
+#=====================[Requerimiento 2]================================
+def insertElementHashR2(lista, film, lo=1, hi=None):
     if hi is None:
         hi = lt.size(lista) + 1
     while lo < hi:
@@ -254,71 +301,63 @@ def TvShowsAdded(catalog, date):
     """
     Función principal del requerimiento 2
     """
-    list_dates = mp.get(catalog["model"]["films_per_date"], date)
+    lista_dates = mp.get(catalog["model"]["films_per_date"], date)
     
-    if list_dates == None:
+    if lista_dates == None:
         return None, None
-    list_dates = mp.get(catalog["model"]["films_per_date"], date)["value"]
-    num_films = mp.size(list_dates)
-    list_dates_ord = mgs.sort(list_dates, cmpReq2)
-    films = FirstAndLast(list_dates_ord)
+    lista_dates = mp.get(catalog["model"]["films_per_date"], date)["value"]
+    num_films = mp.size(lista_dates)
+    lista_dates_ord = mgs.sort(lista_dates, cmpRequerimiento2)
+    films = FirstAndLast(lista_dates_ord)
 
 
     return films, num_films
 
-#=====================[R3]================================
-def insertElementHashr3(lista, film, lo=1, hi=None):
-    if hi is None:
-        hi = lt.size(lista) + 1
-    while lo < hi:
-        mid = (lo+hi)//2
-        if film["release_year"] > lt.getElement(lista, mid)["release_year"]: 
-            hi = mid
-        
-        else:
-             lo = mid+1
-    lt.insertElement(lista, film, lo)
+#=====================[Requerimiento 3]================================
 
-def countfilmsbyType(list_films):
-    films = 0 
-    TvShows = 0 
-    total = lt.size(list_films)
-
-    for film in lt.iterator(list_films):
-        if film["type"] == "films":
-            films += 1
-        elif film["type"] == "Tv Show":
-            TvShows += 1
-
-    return (films, TvShows, total)
  
+def ContentByActor(catalog, Actor_Name):
+    resp_films = None 
+    exist_films = mp.get(catalog["film_per_actor"], Actor_Name)
+    if exist_films:
+        resp_films = me.getValue(exist_films)
+        types = CountContentbyTypeR3(resp_films)
+        resp_films = mgs.sort(resp_films,cmpRequerimiento3)
 
-def ContentActor(catalog, Actor_Name):
-    service = catalog["model"]["general"]
-    for content in lt.iterator(service):
-        if Actor_Name.lower() in content["cast"]:
+    return resp_films, types
+
+#=====================[Requerimiento 4]================================
+
+def ContentByGenre(catalog, genre):
+    resp_films = None 
+    exist_films = mp.get(catalog["film_per_genres"], genre)
+    if exist_films:
+        resp_films = me.getValue(exist_films)
+        types = CountContentbyTypeR4(resp_films, genre)
+        resp_films = mgs.sort(resp_films,cmpRequerimiento4)
+
+    return resp_films, types
+
+#=====================[Requerimiento 5]================================
+
+ 
+def ContentCountry(catalog, country):
+    resp_films = None 
+    exist_films = mp.get(catalog["film_per_country"], country)
+    if exist_films:
+        resp_films = me.getValue(exist_films)
+        types = CountContentbyTypeR5(resp_films, country)
+        resp_films = mgs.sort(resp_films,cmpRequerimiento5)
+
+    return resp_films, types
 
 
-            list_films = mp.get(catalog["model"]["film_per_actor"], Actor_Name)
 
-    if list_films == None:
-        return None, None
-            
-    list_films = list_films["value"]
-    film_types = countfilmsbyType(list_films)
-    list_films_ord = mgs.sort(list_films ,cmpReq3)
-    resp_films = FirstAndLast(list_films_ord)
+#=^..^[Funciones de comparación para comparar elementos de una lista]  =^..^=    =^..^=    =^..^=  
 
-                
+#cmp por requerimiento
 
-    return film_types, resp_films
-
-
-
-
-#=^..^=  =^..^=  [Funciones de comparación para comparar elementos de una lista]  =^..^=    =^..^=    =^..^=  
-
-def cmpReq1(content1, content2):
+def cmpRequerimiento1(content1, content2):
     Default = False 
 
     duration1 = content1["duration"].split() 
@@ -334,7 +373,7 @@ def cmpReq1(content1, content2):
     
     return Default
 
-def cmpReq2(content1, content2):
+def cmpRequerimiento2(content1, content2):
     Default = False 
 
     duration1 = content1["duration"].split() 
@@ -352,7 +391,7 @@ def cmpReq2(content1, content2):
 
 
 
-def cmpReq3(film1, film2):
+def cmpRequerimiento3(film1, film2):
 
     Default = False 
 
@@ -370,38 +409,107 @@ def cmpReq3(film1, film2):
                     Default = True
     return Default
 
-# Funciones de ordenamiento
 
-#=^..^=  =^..^=  [Funciones adicionales]  =^..^=    =^..^=    =^..^=  
+def cmpRequerimiento4(film1, film2):
+
+    Default = False 
+
+    duration1 = film1["duration"].split()
+    duration2 = film2["duration"].split()
+
+    if (int(film1['release_year']) < int(film2['release_year'])):
+            Default = True
+    elif  (int(film1['release_year']) == int(film2['release_year'])):
+        if (film1['title']) < (film2['title']):
+            Default = True 
+        elif  (film1['title']) == (film2['title']):
+            if len(duration1) > 0 and len(duration2) > 0:
+                if (int(duration1[0]) < int(duration2[0])):
+                    Default = True
+    return Default
+
+def cmpRequerimiento5(film1, film2):
+
+    Default = False 
+
+    duration1 = film1["duration"].split()
+    duration2 = film2["duration"].split()
+
+    if (int(film1['release_year']) < int(film2['release_year'])):
+            Default = True
+    elif  (int(film1['release_year']) == int(film2['release_year'])):
+        if (film1['title']) < (film2['title']):
+            Default = True 
+        elif  (film1['title']) == (film2['title']):
+            if len(duration1) > 0 and len(duration2) > 0:
+                if (int(duration1[0]) < int(duration2[0])):
+                    Default = True
+    return Default
+
+
+
+#=^..^[Funciones para contar tipos de contenido]  =^..^=    =^..^=    =^..^= 
+
+def CountContentbyTypeR3(lista):
+    films = 0
+    TvShows = 0
+    total = lt.size(lista) 
+
+    for film in lt.iterator(lista):
+        if film["type"] == "Movie":
+            films += 1
+        elif film["type"] == "TV Show":
+            TvShows += 1
+
+    return (films, TvShows, total)
+
+def CountContentbyTypeR4(lista, genre):
+    films = 0
+    TvShows = 0
+    total = lt.size(lista) 
+
+    for film in lt.iterator(lista):
+        if film["type"] == "Movie":
+            if genre in film["listed_in"]:
+                films += 1
+        elif film["type"] == "TV Show":
+            if genre in film["listed_in"]:
+                TvShows += 1
+
+    return (films, TvShows, total)
+
+def CountContentbyTypeR5(lista,country):
+    films = 0 
+    TvShows = 0 
+    total = lt.size(lista)
+
+    for film in lt.iterator(lista):
+        if film["type"] == "Movie":
+            if country in film["country"]:
+                films += 1
+        elif film["type"] == "TV Show":
+            if country in film["country"]:
+                TvShows += 1
+
+    return (films, TvShows, total)
+
+#=^..^[Funciones adicionales]  =^..^=    =^..^=    =^..^=  
 
 def FirstAndLast(lista):
-    size = lt.size(lista)
-    if size >= 3:
-        first_last = lt.newList('ARRAY_LIST')
-        first = lt.getElement(lista,1)
-        second = lt.getElement(lista,2)
-        third = lt.getElement(lista,3)
-        antepenultimo = lt.getElement(lista,lt.size(lista)-2)
-        penultim = lt.getElement(lista,lt.size(lista)-1)
-        last = lt.getElement(lista,lt.size(lista))
-        
-        lt.addLast(first_last, first)
-        lt.addLast(first_last, second)
-        lt.addLast(first_last, third)
-        lt.addLast(first_last, antepenultimo)
-        lt.addLast(first_last, penultim)
-        lt.addLast(first_last, last)
-    elif size == 1:
-        first_last = lt.newList('ARRAY_LIST')
-        first = lt.getElement(lista, 1)
-        
-        lt.addLast(first_last, first)
-    elif size == 2:
-        first_last = lt.newList('ARRAY_LIST')
-        first = lt.getElement(lista, 1)
-        second = lt.getElement(lista,2)
+    sizelista = lt.size(lista)
+    if sizelista <=6:
+        df = (lista)
+        return df
+    first_3 = lt.subList(lista,1, 3)
+    last_3 = lt.subList(lista,sizelista-3, 3)
+    listafinal =[]
+    for i in lt.iterator(first_3):
+        listafinal.append(i) 
+    for a in lt.iterator(last_3):
+        listafinal.append(a)
+    df=(listafinal)
+    return df
 
-        lt.addLast(first_last, first)
-        lt.addLast(first_last, second)
 
-    return first_last
+
+    
