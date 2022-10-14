@@ -196,8 +196,8 @@ def printR2(films, num_films, date):
 def printR3(resp_films, types, Actor_Name):
     films, TvShows, Total = types
     print("=="*35)
-    print("         {0} tiene: {1} Sencillos, {2} Compilaciones.".format(Actor_Name, films, TvShows))
-    print("         Constituyendo un total de {0} proyectos.".format(Total))
+    print("         {0} tiene: {1} Peliculas, {2} Tv Shows.".format(Actor_Name, films, TvShows))
+    print("         Constituyendo un total de {0} creaciones.".format(Total))
     
     print("\n>>>>>>    Los 3 primeros albumes en la discografia de {0} son: ".format(Actor_Name))
     if lt.size(resp_films) > 6: 
@@ -236,8 +236,8 @@ def printR3(resp_films, types, Actor_Name):
 def printR4(resp_films, types, genre):
     films, TvShows, Total = types
     print("=="*35)
-    print("         {0} tiene: {1} Sencillos, {2} Compilaciones.".format(genre, films, TvShows))
-    print("         Constituyendo un total de {0} proyectos.".format(Total))
+    print("         {0} tiene: {1} Peliculas, {2} TV Shows.".format(genre, films, TvShows))
+    print("         Constituyendo un total de {0} Creaciones (contenido).".format(Total))
     
     print("\n>>>>>>    Las 3 primeras películas de {0} son: ".format(genre))
 
@@ -272,8 +272,8 @@ def printR4(resp_films, types, genre):
 def printR5(resp_films, types, country):
     films, TvShows, Total = types
     print("=="*35)
-    print("         {0} tiene: {1} Sencillos, {2} Compilaciones.".format(country, films, TvShows))
-    print("         Constituyendo un total de {0} proyectos.".format(Total))
+    print("         {0} tiene: {1} Peliculas, {2} Creaciones.".format(country, films, TvShows))
+    print("         Constituyendo un total de {0} Creaciones (contenido).".format(Total))
     
     print("\n>>>>>>    Las 3 primeras películas de {0} son: ".format(country))
 
