@@ -26,7 +26,7 @@ import controller
 from DISClib.ADT import list as lt
 assert cf
 import pandas as pd 
-import tabulate as tb
+from tabulate import tabulate as tb
 default_limit = 1000
 sys.setrecursionlimit(default_limit*10)
 
@@ -129,7 +129,8 @@ def printR1(films, num_films, estrenos_anio):
     print('            Para el año {0}, se encontaron {1} peliculas'.format(estrenos_anio, num_films))
     print("=="*35)
     print('>>>>>>   Las primeras 3 películas en {0} son...   >>>>>>'.format(estrenos_anio))
-    if lt.size(films) > 6: 
+    #print(films)
+    if lt.size(films) >= 6: 
         for i in range(6):
             film = lt.getElement(films, i+1)
 
@@ -144,9 +145,8 @@ def printR1(films, num_films, estrenos_anio):
             if i+1 == 3:
                 
                 print('>>>>>>   Las últimas 3 películas en {0} son...   >>>>>>'.format(estrenos_anio))
-    else: 
+    if lt.size(films) < 6: 
         for film in lt.iterator(films):
-
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
@@ -219,7 +219,7 @@ def printR3(resp_films, types, Actor_Name):
         )
         if i +1 == 3:
             
-            print(">>>>>>    Los 3 últimos albumes en la discografia de {0} son: ".format(Actor_Name))
+            print(">>>>>>    Las últimas 3 películas de {0} son: ".format(Actor_Name))
     else: 
         for film in lt.iterator(resp_films):
 
@@ -239,7 +239,7 @@ def printR4(resp_films, types, genre):
     print("         {0} tiene: {1} Sencillos, {2} Compilaciones.".format(genre, films, TvShows))
     print("         Constituyendo un total de {0} proyectos.".format(Total))
     
-    print("\n>>>>>>    Los 3 primeros albumes en la discografia de {0} son: ".format(genre))
+    print("\n>>>>>>    Las 3 primeras películas de {0} son: ".format(genre))
 
     if lt.size(resp_films) > 6: 
         for i in range(6):
@@ -255,7 +255,7 @@ def printR4(resp_films, types, genre):
             )
             if i+1 == 3:
                 
-                print('>>>>>>   Los últimos 3 álbums en {0} son...   >>>>>>'.format(genre))
+                print('>>>>>>   Las últimas 3 películas en {0} son...   >>>>>>'.format(genre))
     else: 
         for film in lt.iterator(resp_films):
 
@@ -275,7 +275,7 @@ def printR5(resp_films, types, country):
     print("         {0} tiene: {1} Sencillos, {2} Compilaciones.".format(country, films, TvShows))
     print("         Constituyendo un total de {0} proyectos.".format(Total))
     
-    print("\n>>>>>>    Los 3 primeros albumes en la discografia de {0} son: ".format(country))
+    print("\n>>>>>>    Las 3 primeras películas de {0} son: ".format(country))
 
     if lt.size(resp_films) > 6: 
         for i in range(6):
@@ -291,7 +291,7 @@ def printR5(resp_films, types, country):
             )
             if i+1 == 3:
                 
-                print('>>>>>>   Los últimos 3 álbums en {0} son...   >>>>>>'.format(country))
+                print('>>>>>>   Las últimas 3 películas  en {0} son...   >>>>>>'.format(country))
     else: 
         for film in lt.iterator(resp_films):
 
@@ -303,6 +303,76 @@ def printR5(resp_films, types, country):
                 ",\n    Tipo: " + 
                 str(film["type"]) + "\n")
 
+#--------------------------[Requerimiento 6]-----------------------------------------------------------
+
+
+
+def printR6(ans, director):
+
+    # Indice de ans: cantidad_total_DIC, types, list_genre, cont_total, contenidopordic
+
+    print("=="*35)
+    print(f" {director} tiene un total de  {str(ans[0])} contenido de los cuales {str(ans[1][0])} son peliculas, y {str(ans[1][1])} son series.")
+    print("=="*35)
+    print(f"El total por plataforma de streaming es  {ans[5]}")
+    print("=="*35)
+    print(f"los generos listados son {ans[2]}")
+    print("=="*35)
+    print('>>>>>>   Las primeras 3 películas en {0} son...   >>>>>>'.format(director))
+    #print(films)
+    if lt.size(ans[4]) >= 6: 
+        for i in range(6):
+            film = lt.getElement(ans[4], i+1)
+
+            print(
+                "Nombre: " + 
+                str(film["title"]) + 
+                ",\n    Fecha de lanzamiento: " + 
+                str(film["release_year"] ) + 
+                ",\n    Tipo: " + 
+                str(film["type"]) + "\n"
+            )
+            if i+1 == 3:
+                
+                print('>>>>>>   Las últimas 3 películas en {0} son...   >>>>>>'.format(director))
+    if lt.size(ans[4]) < 6: 
+        for film in lt.iterator(ans[4]):
+            print(
+                "Nombre: " + 
+                str(film["title"]) + 
+                ",\n    Fecha de lanzamiento: " + 
+                str(film["release_year"] ) + 
+                ",\n    Tipo: " + 
+                str(film["type"]) + "\n"
+            )
+
+#--------------------------[Requerimiento 7]-----------------------------------------------------------
+def printR7(topGen, top):
+    gen=lt.newList('ARRAY_LIST')
+
+    rank= topGen['first']
+
+    while rank:
+        i=rank['info']
+        count= i['num_movies']+i['num_shows']
+        lt.addLast(gen,(i['genre'],count))
+
+        rank=rank['next']
+    
+    gen2=lt.newList('ARRAY_LIST')
+
+    rank= topGen['first']
+    while rank:
+        i=rank['info']
+        count= i['num_movies']+i['num_shows']
+        lt.addLast(gen2,(i['genre'],count,('count type // movie: '+str(i['num_movies'])+' // TV shows: '+str(i['num_shows'])),('count stream service // amazon: '+str(i['amazon'])+ ' // netflix: '+ str(i['netflix'])+' // hulu: '+str(i['hulu'])+' // disney: '+str(i['disney']))))
+        rank=rank['next']
+
+    print('----- TOP ' + top + 'LISTED_IN -----')
+    print(gen['elements'])
+    print('----- TOP Listed_in detalles -----')
+    tabla2=tb(gen2['elements'], headers=['listed_in','count','type','stream_service'],tablefmt='grid')
+    print(tabla2)
 
 def printMenu():
     
@@ -398,6 +468,22 @@ while True:
         else:
             printR5(resp_films, types, country)
             printTime_Memoria(time, memory)
+    
+    elif int(inputs) == 6:
+        director = input("Ingrese el nombre del director que desea buscar ").title()
+        respuesta, time, memory, = controller.FilmsbyDirector(catalog,director)
+        if time == None:
+            print("     No se encontró contenido relacionado con este director.")
+        else:
+            printR6(respuesta, director)
+            printTime_Memoria(time, memory)
+
+    elif int(inputs) == 7:
+        top=input("Ingrese el TOP N que desea buscar: ")
+        resp,time,memory=controller.topGenres(catalog,top)
+
+        printR7(resp,top)
+        printTime_Memoria(time,memory)
 
 
 

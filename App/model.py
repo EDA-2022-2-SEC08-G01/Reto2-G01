@@ -122,7 +122,7 @@ def newCatalog():
                         )
 
     #================[R6]===================
-    catalog["film_per_director"] = mp.newMap(numelements = 40000, 
+    catalog["films_per_director"] = mp.newMap(numelements = 40000, 
                         maptype= 'PROBING',
                         loadfactor = 0.4
                         )
@@ -174,6 +174,10 @@ def addGeneral(catalog, film):
     countrys = film['country'].split(",")  # Se obtienen los paises
     for country in countrys:
         addMapCountry(catalog, country.strip(), film)
+    directors = film['director'].split(",")  # Se obtienen los paises
+    for director in directors:
+        addMapDirector(catalog, director.strip(), film)
+    
     addMapYears(catalog, film)
     addMapDate(catalog, film)
     #=================[Requerimiento 1]=================
@@ -247,6 +251,24 @@ def addMapCountry(catalog, country, film):
         entry = mp.get(countrys, country)
         nation = me.getValue(entry)
     lt.addLast(nation, film)
+
+
+#=================[Requerimiento 6]=================
+
+def addMapDirector(catalog, director_name, film):
+    directors = catalog['films_per_director']
+    existdirector = mp.contains(directors, director_name)
+    if existdirector:
+        entry = mp.get(directors, director_name)
+        director = me.getValue(entry)
+    else:
+        lista = lt.newList()
+        mp.put(directors,director_name,lista)
+        entry = mp.get(directors, director_name)
+        director = me.getValue(entry)
+    lt.addLast(director, film)
+        #entry = mp.get(directors, director_name)
+        #direc = me.getValue(entry)
 
 
 #=^..^= [Funciones por requerimiento]  =^..^=    =^..^=    =^..^=    =^..^=
@@ -331,6 +353,7 @@ def ContentByActor(catalog, Actor_Name):
 def ContentByGenre(catalog, genre):
     resp_films = None 
     exist_films = mp.get(catalog["film_per_genres"], genre)
+    print(exist_films)
     if exist_films:
         resp_films = me.getValue(exist_films)
         types = CountContentbyTypeR4(resp_films, genre)
@@ -350,6 +373,121 @@ def ContentCountry(catalog, country):
         resp_films = mgs.sort(resp_films,cmpRequerimiento5)
 
     return resp_films, types
+
+#=====================[Requerimiento 6]================================
+
+def ContentByDirector(catalog, director):
+    contenidopordic = mp.get(catalog["films_per_director"], director)
+    contenidopordic = me.getValue(contenidopordic)
+    if mp.isEmpty(contenidopordic) == True:
+        print("No hay contenido asociado a ese director") 
+
+    cantidad_total_DIC = lt.size(contenidopordic) #Se obtiene el contenido TOTAL por director
+
+    contenidopordic =   mgs.sort(contenidopordic,cmpRequerimiento6) #Se organiza la función 
+
+    types= CountContentbyTypeR6(contenidopordic,director) #Se obtiene el contenido TOTAL por TV shows y movies
+
+    numero_cont_genero={} #Diccionario para saber la cantidad de de contenido por genero}
+    cont_total= 0 #Total contenido
+
+    
+    for contenido in lt.iterator(contenidopordic):
+        genre = contenido["listed_in"]
+
+        if ',' in genre:
+            genero_cont = genre.split(",")
+            for i in genero_cont:
+                if i in numero_cont_genero:
+                    numero_cont_genero[i]+=1
+                else:
+                    numero_cont_genero[i]=1
+            cont_total += 1
+        else: 
+            if genre in numero_cont_genero:
+                    numero_cont_genero[genre]+=1
+                    cont_total += 1
+            else:
+                numero_cont_genero[genre]=1
+                cont_total += 1
+
+
+    keys=mp.keySet(catalog['films_per_director'])
+    large=mp.size(catalog['films_per_director'])
+    for contenido in range(1,large):
+        id= lt.getElement(keys,contenido)
+        numero_cont_platform = {'amazon':0,
+            'netflix':0,
+            'hulu':0,
+            'disney':0} #Diccionsrio para contenido por plataforma
+        cont = mp.get(catalog['films_per_director'],id)['value']['first']
+        while cont:
+            if mp.contains(catalog['id_amazon'],cont['info']['show_id']):
+                numero_cont_platform['amazon'] +=1
+            elif mp.contains(catalog['id_netflix'],cont['info']['show_id']):
+                numero_cont_platform['netflix'] +=1
+            elif mp.contains(catalog['id_hulu'],cont['info']['show_id']):
+                numero_cont_platform['hulu'] +=1
+            elif mp.contains(catalog['id_disney'],cont['info']['show_id']):
+                numero_cont_platform['disney'] +=1
+            cont = cont['next']
+    #Convertir diccionario a lista de tuplas
+    list_genre = [(k,v) for k,v in numero_cont_genero.items()]
+    
+    respuesta_general = (cantidad_total_DIC, types, list_genre, cont_total, contenidopordic, numero_cont_platform)
+            
+    return respuesta_general
+
+#=====================[Requerimiento 7]================================
+
+def topGenres (catalog,top):
+    genresTop= lt.newList('SINGLE_LINKED')
+    keys=mp.keySet(catalog['film_per_genres'])
+    size=mp.size(catalog['film_per_genres'])
+
+
+    for gen in range(1,size):
+        genre=lt.getElement(keys,gen)
+        g={
+            'genre':genre,
+            'media':mp.get(catalog['film_per_genres'],genre)['value'],
+            'num_movies':0,
+            'num_shows':0,
+            'amazon':0,
+            'netflix':0,
+            'hulu':0,
+            'disney':0
+        }
+
+        movie = mp.get(catalog['film_per_genres'],genre)['value']['first']
+        while movie:
+            if movie['info']['type']=='Movie':
+                g['num_movies']+=1
+            else:
+                g['num_shows']+=1
+
+            if mp.contains(catalog['id_amazon'],movie['info']['show_id']):
+                g['amazon'] +=1
+            elif mp.contains(catalog['id_netflix'],movie['info']['show_id']):
+                g['netflix'] +=1
+            elif mp.contains(catalog['id_hulu'],movie['info']['show_id']):
+                g['hulu'] +=1
+            elif mp.contains(catalog['id_disney'],movie['info']['show_id']):
+                g['disney'] +=1
+            movie = movie['next']
+            
+
+        lt.addLast(genresTop,g)
+
+    genresTop= mgs.sort(genresTop,cmpRequerimiento7)
+    rank=lt.newList('SINGLE_LINKED')
+    size = lt.size(genresTop)
+    for i in range(1,top + 1):
+        if(i == size): break
+        add=lt.getElement(genresTop,i)
+        lt.addLast(rank,add)
+
+    return rank
 
 
 
@@ -446,6 +584,35 @@ def cmpRequerimiento5(film1, film2):
                     Default = True
     return Default
 
+def cmpRequerimiento6(film1, film2):
+    Default = False 
+
+    duration1 = film1["duration"].split()
+    duration2 = film2["duration"].split()
+
+    if (int(film1['release_year']) < int(film2['release_year'])):
+            Default = True
+    elif  (int(film1['release_year']) == int(film2['release_year'])):
+        if (film1['title']) < (film2['title']):
+            Default = True 
+        elif  (film1['title']) == (film2['title']):
+            if len(duration1) > 0 and len(duration2) > 0:
+                if (int(duration1[0]) < int(duration2[0])):
+                    Default = True
+    return Default
+
+def cmpRequerimiento7(genre1, genre2):
+
+    Default = False 
+
+    duration1 = lt.size(genre1['media'])
+    duration2 = lt.size(genre2['media'])
+
+    if duration1 > duration2:
+            Default = True
+    
+    return Default
+
 
 
 #=^..^[Funciones para contar tipos de contenido]  =^..^=    =^..^=    =^..^= 
@@ -493,6 +660,21 @@ def CountContentbyTypeR5(lista,country):
 
     return (films, TvShows, total)
 
+def CountContentbyTypeR6(lista,director):
+    films = 0
+    TvShows = 0
+    total = lt.size(lista) 
+
+    for film in lt.iterator(lista):
+        if film["type"] == "Movie":
+            if director in film["director"]:
+                films += 1
+        elif film["type"] == "TV Show":
+            if director in film["director"]:
+                TvShows += 1
+
+    return (films, TvShows, total)
+
 #=^..^[Funciones adicionales]  =^..^=    =^..^=    =^..^=  
 
 def FirstAndLast(lista):
@@ -502,13 +684,26 @@ def FirstAndLast(lista):
         return df
     first_3 = lt.subList(lista,1, 3)
     last_3 = lt.subList(lista,sizelista-3, 3)
-    listafinal =[]
+    listafinal = lt.newList()
     for i in lt.iterator(first_3):
-        listafinal.append(i) 
+       lt.addLast(listafinal, i)
     for a in lt.iterator(last_3):
-        listafinal.append(a)
+        lt.addLast(listafinal, a)
     df=(listafinal)
     return df
+
+def unkonwnAtribute (movie):
+    if movie['director']== '':
+        movie['director']='unknown'
+    if movie['cast']== '':
+        movie['cast']='unknown'
+    if movie['date_added']== '':
+        movie['date_added']='unknown'
+    if movie['country']== '':
+        movie['country']='unknown'
+    if movie['rating']== '':
+        movie['rating']='unknown'
+    return movie
 
 
 

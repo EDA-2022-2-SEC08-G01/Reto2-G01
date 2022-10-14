@@ -33,7 +33,7 @@ csv.field_size_limit(2147483647)
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
-size = "small"
+size = "10pct"
 
 
 #=^..^= [Inicialización del Catálogo de libros]  =^..^=    =^..^=    =^..^=    =^..^=
@@ -256,6 +256,50 @@ def FilmsByCountry(catalog, country):
         return None, None, None, None
 
     return resp_films, types, time, memory
+
+#=====================[Requerimiento 6]=======================================
+def FilmsbyDirector(catalog, director):
+
+    tracemalloc.start()
+
+    start_time = getTime()
+    start_memory = getMemory()
+
+    resp_films = model.ContentByDirector(catalog["model"], director)
+
+    stop_memory = getMemory()
+    stop_time = getTime()
+    
+    tracemalloc.stop()
+
+    time = deltaTime(stop_time, start_time)
+    memory = deltaMemory(stop_memory, start_memory)
+
+    if resp_films == None:
+        return None, None, None
+
+    return resp_films, time, memory
+
+#=====================[R7]=======================================
+
+def topGenres(catalog,top):
+
+    tracemalloc.start()
+
+    start_time = getTime()
+    start_memory = getMemory()
+
+    topGen= model.topGenres(catalog["model"], int(top))
+
+    stop_memory = getMemory()
+    stop_time = getTime()
+    
+    tracemalloc.stop()
+
+    time = deltaTime(stop_time, start_time)
+    memory = deltaMemory(stop_memory, start_memory)
+
+    return topGen,time,memory
 
 
 
