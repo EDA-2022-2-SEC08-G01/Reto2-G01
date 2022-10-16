@@ -440,7 +440,7 @@ def ContentByDirector(catalog, director):
 
 #=====================[Requerimiento 7]================================
 
-def topGenres (catalog,top):
+def ContentTopGenres (catalog,top):
     genresTop= lt.newList('SINGLE_LINKED')
     keys=mp.keySet(catalog['film_per_genres'])
     size=mp.size(catalog['film_per_genres'])

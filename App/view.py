@@ -129,18 +129,35 @@ def printR1(films, num_films, estrenos_anio):
     print('            Para el año {0}, se encontaron {1} peliculas'.format(estrenos_anio, num_films))
     print("=="*35)
     print('>>>>>>   Las primeras 3 películas en {0} son...   >>>>>>'.format(estrenos_anio))
-    #print(films)
+
     if lt.size(films) >= 6: 
         for i in range(6):
             film = lt.getElement(films, i+1)
 
+            if film["description"] == "-99":
+                descripcion = "Descripcion del contenido: No disponible"
+
+            else:
+                descripcion = str(film["description"]).replace("\n", " ")[:50] +'..."'
+
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                descripcion + 
+                '"\n'
             )
             if i+1 == 3:
                 
@@ -165,17 +182,34 @@ def printR2(films, num_films, date):
     print('            Para el año {0}, se encontaron {1} creaciones (Movies y TvShows)'.format(date, num_films))
     print("=="*35)
     print('>>>>>>   Los primeros 3 contenidos encontrados en {0} son...   >>>>>>'.format(date))
-    if lt.size(films) > 6: 
+    if lt.size(films) >= 6: 
         for i in range(6):
             film = lt.getElement(films, i+1)
+
+            if film["description"] == "-99":
+                descripcion = "Descripcion del contenido: No disponible"
+
+            else:
+                descripcion = str(film["description"]).replace("\n", " ")[:50] +'..."'
 
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                descripcion + 
+                '"\n'
             )
             if i+1 == 3:
                 
@@ -186,10 +220,21 @@ def printR2(films, num_films, date):
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                descripcion + 
+                '"\n'
             )
         
 #--------------------------[Requerimiento 3]-----------------------------------------------------------
@@ -203,20 +248,34 @@ def printR3(resp_films, types, Actor_Name):
     if lt.size(resp_films) > 6: 
         for i in range(6):
             film = lt.getElement(resp_films, i+1)
+
+            if film["description"] == "-99":
+                descripcion = "Descripcion del contenido: No disponible"
+
+            else:
+                descripcion = str(film["description"]).replace("\n", " ")[:50] +'..."'
         
         print(
-            "Fecha de publicacion: " + 
-            str(film["release_year"]) + 
-            ",\n      Nombre del álbum: " + 
-            str(film["title"]) + 
-            ",\n      Canciones en el film: " + 
-            str(film["director"]) + 
-            ",\n      Tipo de film: " +
-            str(film["type"]) + 
-            ",\n      Nombre del artista: " +  
-            str(Actor_Name) + 
-            "\n"
-        )
+                "Nombre: " + 
+                str(film["title"]) + 
+                ",\n    Tipo: " + 
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                descripcion + 
+                '"\n' +  
+               str(Actor_Name) + 
+               "\n"
+            )
         if i +1 == 3:
             
             print(">>>>>>    Las últimas 3 películas de {0} son: ".format(Actor_Name))
@@ -226,12 +285,24 @@ def printR3(resp_films, types, Actor_Name):
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                str(film["description"]) + 
+                '"\n' +  
+               str(Actor_Name) + 
+               "\n"
             )
-
 #--------------------------[Requerimiento 4]-----------------------------------------------------------
 def printR4(resp_films, types, genre):
     films, TvShows, Total = types
@@ -244,14 +315,33 @@ def printR4(resp_films, types, genre):
     if lt.size(resp_films) > 6: 
         for i in range(6):
             film = lt.getElement(resp_films, i+1)
+            
+            if film["description"] == "-99":
+                descripcion = "Descripcion del contenido: No disponible"
+
+            else:
+                descripcion = str(film["description"]).replace("\n", " ")[:50] +'..."'
 
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                descripcion + 
+                '"\n' +  
+               str(Actor_Name) + 
+               "\n"
             )
             if i+1 == 3:
                 
@@ -262,10 +352,24 @@ def printR4(resp_films, types, genre):
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n")
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                str(film["description"]) + 
+                '"\n' +  
+               str(Actor_Name) + 
+               "\n"
+            )
 
 #--------------------------[Requerimiento 5]-----------------------------------------------------------
 
@@ -284,10 +388,23 @@ def printR5(resp_films, types, country):
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                str(film["description"]) + 
+                '"\n' +  
+               str(country) + 
+               "\n"
             )
             if i+1 == 3:
                 
@@ -298,10 +415,24 @@ def printR5(resp_films, types, country):
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n")
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                str(film["description"]) + 
+                '"\n' +  
+               str(country) + 
+               "\n"
+            )
 
 #--------------------------[Requerimiento 6]-----------------------------------------------------------
 
@@ -312,10 +443,10 @@ def printR6(ans, director):
     # Indice de ans: cantidad_total_DIC, types, list_genre, cont_total, contenidopordic
 
     print("=="*35)
-    print(f" {director} tiene un total de  {str(ans[0])} contenido de los cuales {str(ans[1][0])} son peliculas, y {str(ans[1][1])} son series.")
-    print("=="*35)
+    print("{0} tiene un total de: {1} de las cuales {2} Peliculas, {3} TV Shows.".format(director, str(ans[0]), {str(ans[1][0])}, {str(ans[1][1])}))
+    print("\n")
     print(f"El total por plataforma de streaming es  {ans[5]}")
-    print("=="*35)
+    print("\n")
     print(f"los generos listados son {ans[2]}")
     print("=="*35)
     print('>>>>>>   Las primeras 3 películas en {0} son...   >>>>>>'.format(director))
@@ -327,25 +458,50 @@ def printR6(ans, director):
             print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                str(film["description"]) + 
+                '"\n' +  
+               str(director) + 
+               "\n"
             )
             if i+1 == 3:
                 
                 print('>>>>>>   Las últimas 3 películas en {0} son...   >>>>>>'.format(director))
     if lt.size(ans[4]) < 6: 
         for film in lt.iterator(ans[4]):
-            print(
+           print(
                 "Nombre: " + 
                 str(film["title"]) + 
-                ",\n    Fecha de lanzamiento: " + 
-                str(film["release_year"] ) + 
                 ",\n    Tipo: " + 
-                str(film["type"]) + "\n"
+                str(film['type']) + 
+                ",\n    Director: " + 
+                str(film['director']) + 
+                ",\n    Nombres de actores involucrados: " + 
+                str(film['cast'])[:-2] + 
+                ",\n    Paises: " + 
+                str(film['country']) +
+                ",\n    Realase_year: " +
+                str(film["release_year"]) +
+                ",\n    Duración: " +  
+                str(film["duration"]) +
+                ',\n    Descripción:  ' +  
+                str(film["description"]) + 
+                '"\n' +  
+               str(director) + 
+               "\n"
             )
-
 #--------------------------[Requerimiento 7]-----------------------------------------------------------
 def printR7(topGen, top):
     gen=lt.newList('ARRAY_LIST')
@@ -377,7 +533,7 @@ def printR7(topGen, top):
 def printMenu():
     
     print("====="*15)
-    print("          >>               Bienvenido                    <<     ")
+    print("          >>               Bienvenido<3                  <<     ")
     print("  [R0]   c- Cargar información en el catálogo.")
     print("  [R1]   1- Examinar las pelicuas estrenadas en un año de interés.")
     print("  [R2]   2- Examinar los programas de televisión agregados en un año.")
@@ -470,7 +626,7 @@ while True:
             printTime_Memoria(time, memory)
     
     elif int(inputs) == 6:
-        director = input("Ingrese el nombre del director que desea buscar ").title()
+        director = input("Ingrese el nombre del director que desea buscar: ").title()
         respuesta, time, memory, = controller.FilmsbyDirector(catalog,director)
         if time == None:
             print("     No se encontró contenido relacionado con este director.")
@@ -480,7 +636,7 @@ while True:
 
     elif int(inputs) == 7:
         top=input("Ingrese el TOP N que desea buscar: ")
-        resp,time,memory=controller.topGenres(catalog,top)
+        resp,time,memory=controller.ContentTopGenres(catalog,top)
 
         printR7(resp,top)
         printTime_Memoria(time,memory)

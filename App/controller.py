@@ -33,7 +33,7 @@ csv.field_size_limit(2147483647)
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
-size = "10pct"
+size = "large"
 
 
 #=^..^= [Inicialización del Catálogo de libros]  =^..^=    =^..^=    =^..^=    =^..^=
@@ -282,14 +282,14 @@ def FilmsbyDirector(catalog, director):
 
 #=====================[R7]=======================================
 
-def topGenres(catalog,top):
+def ContentTopGenres(catalog,top):
 
     tracemalloc.start()
 
     start_time = getTime()
     start_memory = getMemory()
 
-    topGen= model.topGenres(catalog["model"], int(top))
+    topGen= model.ContentTopGenres(catalog["model"], int(top))
 
     stop_memory = getMemory()
     stop_time = getTime()
